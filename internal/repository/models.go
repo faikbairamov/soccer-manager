@@ -90,5 +90,4 @@ type User struct {
 	Email     string             `db:"email" json:"email"`
 	Password  string             `db:"password" json:"password"`
 	CreatedAt pgtype.Timestamptz `db:"created_at" json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `db:"updated_at" json:"updated_at"`
 }
