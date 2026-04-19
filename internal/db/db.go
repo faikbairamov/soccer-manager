@@ -31,6 +31,7 @@ func Connect(ctx context.Context, cfg *config.Config) (*pgxpool.Pool, error) {
 	poolCfg.MinConns = cfg.DBMinConns
 	poolCfg.MaxConnLifetime = time.Hour
 	poolCfg.MaxConnIdleTime = 30 * time.Minute
+	poolCfg.ConnConfig.ConnectTimeout = 5 * time.Second
 
 	pool, err := pgxpool.NewWithConfig(ctx, poolCfg)
 	if err != nil {
