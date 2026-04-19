@@ -112,19 +112,19 @@ func (q *Queries) GetPlayersByTeamID(ctx context.Context, teamID pgtype.UUID) ([
 
 const transferPlayer = `-- name: TransferPlayer :one
 UPDATE players
-SET team_id = $2, position = $3, updated_at = NOW()
+SET team_id = $2, value = $3, updated_at = NOW()
 WHERE id = $1
 RETURNING id, team_id, first_name, last_name, country, position, age, value, created_at, updated_at
 `
 
 type TransferPlayerParams struct {
-	ID       pgtype.UUID    `db:"id" json:"id"`
-	TeamID   pgtype.UUID    `db:"team_id" json:"team_id"`
-	Position PlayerPosition `db:"position" json:"position"`
+	ID     pgtype.UUID `db:"id" json:"id"`
+	TeamID pgtype.UUID `db:"team_id" json:"team_id"`
+	Value  int64       `db:"value" json:"value"`
 }
 
 func (q *Queries) TransferPlayer(ctx context.Context, arg TransferPlayerParams) (Player, error) {
-	row := q.db.QueryRow(ctx, transferPlayer, arg.ID, arg.TeamID, arg.Position)
+	row := q.db.QueryRow(ctx, transferPlayer, arg.ID, arg.TeamID, arg.Value)
 	var i Player
 	err := row.Scan(
 		&i.ID,

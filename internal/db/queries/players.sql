@@ -17,6 +17,6 @@ RETURNING *;
 
 -- name: TransferPlayer :one
 UPDATE players
-SET team_id = $2, position = $3, updated_at = NOW()
+SET team_id = $2, value = $3, updated_at = NOW()
 WHERE id = $1
 RETURNING *;
