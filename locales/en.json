@@ -1,0 +1,27 @@
+{
+  "validation.required": "{{.Field}} is required",
+  "validation.invalid_email": "Invalid email address",
+  "validation.password_too_short": "Password must be at least 8 characters",
+
+  "auth.invalid_credentials": "Invalid email or password",
+  "auth.email_taken": "Email is already registered",
+  "auth.unauthorized": "Authentication required",
+  "auth.forbidden": "You do not have permission to perform this action",
+
+  "team.not_found": "Team not found",
+  "team.already_exists": "User already has a team",
+
+  "player.not_found": "Player not found",
+  "player.not_owner": "You do not own this player",
+
+  "transfer.not_found": "Transfer listing not found",
+  "transfer.already_listed": "Player is already on the transfer list",
+  "transfer.insufficient_funds": "Insufficient budget to purchase this player",
+  "transfer.own_player": "You cannot buy your own player",
+  "transfer.listed": "Player listed on transfer market",
+  "transfer.delisted": "Player removed from transfer market",
+  "transfer.purchased": "Player purchased successfully",
+
+  "error.rate_limit": "Too many requests. Please slow down.",
+  "server.internal_error": "An unexpected error occurred"
+}

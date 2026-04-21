@@ -1,0 +1,27 @@
+{
+  "validation.required": "{{.Field}} სავალდებულოა",
+  "validation.invalid_email": "არასწორი ელ-ფოსტის მისამართი",
+  "validation.password_too_short": "პაროლი უნდა შეიცავდეს მინიმუმ 8 სიმბოლოს",
+
+  "auth.invalid_credentials": "არასწორი ელ-ფოსტა ან პაროლი",
+  "auth.email_taken": "ეს ელ-ფოსტა უკვე რეგისტრირებულია",
+  "auth.unauthorized": "საჭიროა ავთენტიფიკაცია",
+  "auth.forbidden": "თქვენ არ გაქვთ ამ მოქმედების შესრულების უფლება",
+
+  "team.not_found": "გუნდი ვერ მოიძებნა",
+  "team.already_exists": "მომხმარებელს უკვე აქვს გუნდი",
+
+  "player.not_found": "მოთამაშე ვერ მოიძებნა",
+  "player.not_owner": "ეს მოთამაშე თქვენ არ გეკუთვნით",
+
+  "transfer.not_found": "ტრანსფერის განცხადება ვერ მოიძებნა",
+  "transfer.already_listed": "მოთამაშე უკვე ტრანსფერის სიაშია",
+  "transfer.insufficient_funds": "არასაკმარისი ბიუჯეტი ამ მოთამაშის შესაძენად",
+  "transfer.own_player": "საკუთარი მოთამაშის ყიდვა შეუძლებელია",
+  "transfer.listed": "მოთამაშე განთავსდა ტრანსფერის ბაზარზე",
+  "transfer.delisted": "მოთამაშე მოხსნილია ტრანსფერის ბაზრიდან",
+  "transfer.purchased": "მოთამაშე წარმატებით შეძენილია",
+
+  "error.rate_limit": "ძალიან ბევრი მოთხოვნა. გთხოვთ, შეანელოთ.",
+  "server.internal_error": "მოხდა მოულოდნელი შეცდომა"
+}
