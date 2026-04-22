@@ -28,6 +28,16 @@ type UpdateTeamRequest struct {
 	Country string `json:"country"`
 }
 
+// GetTeam godoc
+// @Summary      Get my team
+// @Description  Returns the authenticated user's team including total player value.
+// @Tags         teams
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} domain.Team
+// @Failure      401 {object} ErrorResponse
+// @Failure      404 {object} ErrorResponse
+// @Router       /teams/me [get]
 func (h *TeamHandler) GetTeam(c *gin.Context) {
 	userID := c.MustGet("userID").(uuid.UUID)
 
@@ -39,6 +49,19 @@ func (h *TeamHandler) GetTeam(c *gin.Context) {
 	c.JSON(http.StatusOK, team)
 }
 
+// UpdateTeam godoc
+// @Summary      Update my team
+// @Description  Updates the name and/or country of the authenticated user's team.
+// @Tags         teams
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body     UpdateTeamRequest true "Team update payload"
+// @Success      200     {object} domain.Team
+// @Failure      400     {object} ErrorResponse
+// @Failure      401     {object} ErrorResponse
+// @Failure      422     {object} ErrorResponse "Empty name or country"
+// @Router       /teams/me [patch]
 func (h *TeamHandler) UpdateTeam(c *gin.Context) {
 	userID := c.MustGet("userID").(uuid.UUID)
 

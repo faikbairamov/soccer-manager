@@ -28,6 +28,18 @@ type UpdatePlayerRequest struct {
 	Country   string `json:"country"`
 }
 
+// GetPlayer godoc
+// @Summary      Get a player
+// @Description  Returns a single player by UUID. Any authenticated user can view any player.
+// @Tags         players
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id  path     string true "Player UUID"
+// @Success      200 {object} domain.Player
+// @Failure      400 {object} ErrorResponse "Invalid UUID"
+// @Failure      401 {object} ErrorResponse
+// @Failure      404 {object} ErrorResponse
+// @Router       /players/{id} [get]
 func (h *PlayerHandler) GetPlayer(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -43,6 +55,21 @@ func (h *PlayerHandler) GetPlayer(c *gin.Context) {
 	c.JSON(http.StatusOK, player)
 }
 
+// UpdatePlayer godoc
+// @Summary      Update a player
+// @Description  Updates first name, last name, and country of a player you own.
+// @Tags         players
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id      path     string              true "Player UUID"
+// @Param        request body     UpdatePlayerRequest true "Player update payload"
+// @Success      200     {object} domain.Player
+// @Failure      400     {object} ErrorResponse "Invalid UUID or body"
+// @Failure      401     {object} ErrorResponse
+// @Failure      403     {object} ErrorResponse "Player belongs to another team"
+// @Failure      404     {object} ErrorResponse
+// @Router       /players/{id} [patch]
 func (h *PlayerHandler) UpdatePlayer(c *gin.Context) {
 	userID := c.MustGet("userID").(uuid.UUID)
 

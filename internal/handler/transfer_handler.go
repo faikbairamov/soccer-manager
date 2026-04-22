@@ -19,6 +19,16 @@ type TransferHandler struct {
 	svc transferService
 }
 
+// TransferListResponse is returned by GetTransfers.
+type TransferListResponse struct {
+	Data []domain.Transfer `json:"data"`
+	Meta struct {
+		Page  int   `json:"page"`
+		Limit int   `json:"limit"`
+		Total int64 `json:"total"`
+	} `json:"meta"`
+}
+
 func NewTransferHandler(svc transferService) *TransferHandler {
 	return &TransferHandler{svc: svc}
 }
@@ -32,6 +42,20 @@ type GetTransfersQuery struct {
 	Limit int `form:"limit"`
 }
 
+// ListTransfer godoc
+// @Summary      List a player on the transfer market
+// @Description  Creates a transfer listing for a player you own. Player must not already be listed.
+// @Tags         transfers
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body     ListTransferRequest true "Listing payload"
+// @Success      201     {object} domain.Transfer
+// @Failure      400     {object} ErrorResponse
+// @Failure      401     {object} ErrorResponse
+// @Failure      403     {object} ErrorResponse "Player belongs to another team"
+// @Failure      409     {object} ErrorResponse "Player already listed"
+// @Router       /transfers [post]
 func (h *TransferHandler) ListTransfer(c *gin.Context) {
 	userID := c.MustGet("userID").(uuid.UUID)
 	var req ListTransferRequest
@@ -47,6 +71,17 @@ func (h *TransferHandler) ListTransfer(c *gin.Context) {
 	}
 	c.JSON(http.StatusCreated, transfer)
 }
+// GetTransfers godoc
+// @Summary      Browse transfer market
+// @Description  Returns a paginated list of all active transfer listings.
+// @Tags         transfers
+// @Produce      json
+// @Security     BearerAuth
+// @Param        page  query    int false "Page number (default 1)"
+// @Param        limit query    int false "Results per page (default 20)"
+// @Success      200   {object} TransferListResponse
+// @Failure      401   {object} ErrorResponse
+// @Router       /transfers [get]
 func (h *TransferHandler) GetTransfers(c *gin.Context) {
 	var q GetTransfersQuery
 	_ = c.ShouldBindQuery(&q)
@@ -66,6 +101,19 @@ func (h *TransferHandler) GetTransfers(c *gin.Context) {
 		"meta": gin.H{"page": q.Page, "limit": q.Limit, "total": total},
 	})
 }
+// DelistTransfer godoc
+// @Summary      Remove a transfer listing
+// @Description  Deletes a transfer listing. Only the owner of the listed player can delist.
+// @Tags         transfers
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id  path string true "Transfer UUID"
+// @Success      204
+// @Failure      400 {object} ErrorResponse "Invalid UUID"
+// @Failure      401 {object} ErrorResponse
+// @Failure      403 {object} ErrorResponse "Not the owner"
+// @Failure      404 {object} ErrorResponse
+// @Router       /transfers/{id} [delete]
 func (h *TransferHandler) DelistTransfer(c *gin.Context) {
 	userID := c.MustGet("userID").(uuid.UUID)
 	transferID, err := uuid.Parse(c.Param("id"))
@@ -79,6 +127,20 @@ func (h *TransferHandler) DelistTransfer(c *gin.Context) {
 	}
 	c.Status(http.StatusNoContent)
 }
+// BuyPlayer godoc
+// @Summary      Buy a listed player
+// @Description  Purchases a player from the transfer market. Atomically credits the seller, debits the buyer, transfers the player, and removes the listing.
+// @Tags         transfers
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id  path     string true "Transfer UUID"
+// @Success      200 {object} map[string]string
+// @Failure      400 {object} ErrorResponse "Invalid UUID"
+// @Failure      401 {object} ErrorResponse
+// @Failure      403 {object} ErrorResponse "Cannot buy your own player"
+// @Failure      404 {object} ErrorResponse
+// @Failure      422 {object} ErrorResponse "Insufficient budget"
+// @Router       /transfers/{id}/buy [post]
 func (h *TransferHandler) BuyPlayer(c *gin.Context) {
 	userID := c.MustGet("userID").(uuid.UUID)
 	transferID, err := uuid.Parse(c.Param("id"))

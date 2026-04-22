@@ -34,6 +34,23 @@ type AuthResponse struct {
 	Token string `json:"token"`
 }
 
+// ErrorResponse is the shape returned for every error.
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+// Register godoc
+// @Summary      Register a new user
+// @Description  Creates a user account, seeds a team with 20 players, and returns a JWT.
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request body     RegisterRequest true "Registration payload"
+// @Success      201     {object} AuthResponse
+// @Failure      400     {object} ErrorResponse
+// @Failure      409     {object} ErrorResponse "Email already taken"
+// @Failure      429     {object} ErrorResponse "Rate limit exceeded"
+// @Router       /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -49,6 +66,18 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, AuthResponse{Token: token})
 }
 
+// Login godoc
+// @Summary      Log in
+// @Description  Validates credentials and returns a JWT.
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request body     LoginRequest true "Login payload"
+// @Success      200     {object} AuthResponse
+// @Failure      400     {object} ErrorResponse
+// @Failure      401     {object} ErrorResponse "Invalid credentials"
+// @Failure      429     {object} ErrorResponse "Rate limit exceeded"
+// @Router       /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 
