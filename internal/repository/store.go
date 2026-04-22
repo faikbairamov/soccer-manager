@@ -15,7 +15,7 @@ func NewStore(pool *pgxpool.Pool) *Store {
 	return &Store{Queries: New(pool), pool: pool}
 }
 
-func (s *Store) WithTx(ctx context.Context, fn func(q *Queries) error) error {
+func (s *Store) WithTx(ctx context.Context, fn func(q Querier) error) error {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
 		return err
@@ -30,5 +30,5 @@ func (s *Store) WithTx(ctx context.Context, fn func(q *Queries) error) error {
 
 type Storer interface {
 	Querier
-	WithTx(ctx context.Context, fn func(q *Queries) error) error
+	WithTx(ctx context.Context, fn func(q Querier) error) error
 }
