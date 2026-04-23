@@ -10,10 +10,13 @@
 
   "team.not_found": "გუნდი ვერ მოიძებნა",
   "team.already_exists": "მომხმარებელს უკვე აქვს გუნდი",
+  "team.invalid_input": "გუნდის სახელი და ქვეყანა არ შეიძლება იყოს ცარიელი",
 
   "player.not_found": "მოთამაშე ვერ მოიძებნა",
   "player.not_owner": "ეს მოთამაშე თქვენ არ გეკუთვნით",
 
+  "transfer.invalid_player_id": "მოთამაშის არასწორი ID",
+  "transfer.invalid_asking_price": "მოთხოვნილი ფასი უნდა იყოს ნულზე მეტი",
   "transfer.not_found": "ტრანსფერის განცხადება ვერ მოიძებნა",
   "transfer.already_listed": "მოთამაშე უკვე ტრანსფერის სიაშია",
   "transfer.insufficient_funds": "არასაკმარისი ბიუჯეტი ამ მოთამაშის შესაძენად",

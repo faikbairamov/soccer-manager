@@ -2,9 +2,12 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
+	"github.com/faikbairamov/soccer-manager/internal/i18n"
 	"github.com/gin-gonic/gin"
+	validator "github.com/go-playground/validator/v10"
 )
 
 type authService interface {
@@ -53,6 +56,18 @@ type ErrorResponse struct {
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) && len(ve) > 0 {
+			switch ve[0].Field() {
+			case "Email":
+				c.JSON(http.StatusBadRequest, errorBody(i18n.Translate(c, "validation.invalid_email")))
+			case "Password":
+				c.JSON(http.StatusBadRequest, errorBody(i18n.Translate(c, "validation.password_too_short")))
+			default:
+				c.JSON(http.StatusBadRequest, errorBody(i18n.Translate(c, "server.internal_error")))
+			}
+			return
+		}
 		c.JSON(http.StatusBadRequest, errorBody(err.Error()))
 		return
 	}

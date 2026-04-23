@@ -10,10 +10,13 @@
 
   "team.not_found": "Team not found",
   "team.already_exists": "User already has a team",
+  "team.invalid_input": "Team name and country cannot be empty",
 
   "player.not_found": "Player not found",
   "player.not_owner": "You do not own this player",
 
+  "transfer.invalid_player_id": "Invalid player ID",
+  "transfer.invalid_asking_price": "Asking price must be greater than zero",
   "transfer.not_found": "Transfer listing not found",
   "transfer.already_listed": "Player is already on the transfer list",
   "transfer.insufficient_funds": "Insufficient budget to purchase this player",

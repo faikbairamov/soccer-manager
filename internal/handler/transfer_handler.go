@@ -6,8 +6,10 @@ import (
 	"net/http"
 
 	"github.com/faikbairamov/soccer-manager/internal/domain"
+	"github.com/faikbairamov/soccer-manager/internal/i18n"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	validator "github.com/go-playground/validator/v10"
 )
 
 type transferService interface {
@@ -60,6 +62,18 @@ func (h *TransferHandler) ListTransfer(c *gin.Context) {
 	userID := c.MustGet("userID").(uuid.UUID)
 	var req ListTransferRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) && len(ve) > 0 {
+			switch ve[0].Field() {
+			case "PlayerID":
+				c.JSON(http.StatusBadRequest, errorBody(i18n.Translate(c, "transfer.invalid_player_id")))
+			case "AskingPrice":
+				c.JSON(http.StatusBadRequest, errorBody(i18n.Translate(c, "transfer.invalid_asking_price")))
+			default:
+				c.JSON(http.StatusBadRequest, errorBody(i18n.Translate(c, "server.internal_error")))
+			}
+			return
+		}
 		c.JSON(http.StatusBadRequest, errorBody(err.Error()))
 		return
 	}

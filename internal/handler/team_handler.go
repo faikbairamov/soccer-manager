@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/faikbairamov/soccer-manager/internal/domain"
@@ -73,7 +74,12 @@ func (h *TeamHandler) UpdateTeam(c *gin.Context) {
 
 	team, err := h.svc.UpdateTeam(c.Request.Context(), userID, req.Name, req.Country)
 	if err != nil {
-		httpError(c, err, "team.not_found")
+		switch {
+		case errors.Is(err, domain.ErrInvalidInput):
+			httpError(c, err, "team.invalid_input")
+		default:
+			httpError(c, err, "team.not_found")
+		}
 		return
 	}
 	c.JSON(http.StatusOK, team)
