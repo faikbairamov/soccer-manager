@@ -1,0 +1,510 @@
+basePath: /api/v1
+definitions:
+  domain.Player:
+    properties:
+      age:
+        type: integer
+      country:
+        type: string
+      createdAt:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: string
+      position:
+        type: string
+      teamID:
+        type: string
+      updatedAt:
+        type: string
+      value:
+        format: int64
+        type: integer
+    type: object
+  domain.Team:
+    properties:
+      budget:
+        format: int64
+        type: integer
+      country:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      totalValue:
+        format: int64
+        type: integer
+      updatedAt:
+        type: string
+      userID:
+        type: string
+    type: object
+  domain.Transfer:
+    properties:
+      askingPrice:
+        format: int64
+        type: integer
+      id:
+        type: string
+      listedAt:
+        type: string
+      playerFirstName:
+        type: string
+      playerID:
+        type: string
+      playerLastName:
+        type: string
+      playerPosition:
+        type: string
+      playerValue:
+        format: int64
+        type: integer
+      teamName:
+        type: string
+    type: object
+  handler.AuthResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  handler.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  handler.ListTransferRequest:
+    properties:
+      asking_price:
+        minimum: 1
+        type: integer
+      player_id:
+        type: string
+    required:
+    - asking_price
+    - player_id
+    type: object
+  handler.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handler.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handler.TransferListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/domain.Transfer'
+        type: array
+      meta:
+        properties:
+          limit:
+            type: integer
+          page:
+            type: integer
+          total:
+            type: integer
+        type: object
+    type: object
+  handler.UpdatePlayerRequest:
+    properties:
+      country:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+    type: object
+  handler.UpdateTeamRequest:
+    properties:
+      country:
+        type: string
+      name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: RESTful API for managing fantasy football teams.
+  title: Soccer Manager API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Validates credentials and returns a JWT.
+      parameters:
+      - description: Login payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "429":
+          description: Rate limit exceeded
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Log in
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a user account, seeds a team with 20 players, and returns
+        a JWT.
+      parameters:
+      - description: Registration payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "409":
+          description: Email already taken
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "429":
+          description: Rate limit exceeded
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /players/{id}:
+    get:
+      description: Returns a single player by UUID. Any authenticated user can view
+        any player.
+      parameters:
+      - description: Player UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Player'
+        "400":
+          description: Invalid UUID
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a player
+      tags:
+      - players
+    patch:
+      consumes:
+      - application/json
+      description: Updates first name, last name, and country of a player you own.
+      parameters:
+      - description: Player UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Player update payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdatePlayerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Player'
+        "400":
+          description: Invalid UUID or body
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "403":
+          description: Player belongs to another team
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a player
+      tags:
+      - players
+  /teams/me:
+    get:
+      description: Returns the authenticated user's team including total player value.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Team'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get my team
+      tags:
+      - teams
+    patch:
+      consumes:
+      - application/json
+      description: Updates the name and/or country of the authenticated user's team.
+      parameters:
+      - description: Team update payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateTeamRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Team'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "422":
+          description: Empty name or country
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update my team
+      tags:
+      - teams
+  /transfers:
+    get:
+      description: Returns a paginated list of all active transfer listings.
+      parameters:
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Results per page (default 20)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.TransferListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Browse transfer market
+      tags:
+      - transfers
+    post:
+      consumes:
+      - application/json
+      description: Creates a transfer listing for a player you own. Player must not
+        already be listed.
+      parameters:
+      - description: Listing payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ListTransferRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Transfer'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "403":
+          description: Player belongs to another team
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "409":
+          description: Player already listed
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List a player on the transfer market
+      tags:
+      - transfers
+  /transfers/{id}:
+    delete:
+      description: Deletes a transfer listing. Only the owner of the listed player
+        can delist.
+      parameters:
+      - description: Transfer UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid UUID
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "403":
+          description: Not the owner
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove a transfer listing
+      tags:
+      - transfers
+  /transfers/{id}/buy:
+    post:
+      description: Purchases a player from the transfer market. Atomically credits
+        the seller, debits the buyer, transfers the player, and removes the listing.
+      parameters:
+      - description: Transfer UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid UUID
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "403":
+          description: Cannot buy your own player
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "422":
+          description: Insufficient budget
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Buy a listed player
+      tags:
+      - transfers
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
