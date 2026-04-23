@@ -34,8 +34,21 @@ func (s *TeamService) GetTeam(ctx context.Context, userID uuid.UUID) (domain.Tea
 		return domain.Team{}, err
 	}
 	var total int64
-	for _, p := range players {
+	domainPlayers := make([]domain.Player, len(players))
+	for i, p := range players {
 		total += p.Value
+		domainPlayers[i] = domain.Player{
+			ID:        p.ID.Bytes,
+			TeamID:    p.TeamID.Bytes,
+			FirstName: p.FirstName,
+			LastName:  p.LastName,
+			Country:   p.Country,
+			Position:  string(p.Position),
+			Age:       int(p.Age),
+			Value:     p.Value,
+			CreatedAt: p.CreatedAt.Time,
+			UpdatedAt: p.UpdatedAt.Time,
+		}
 	}
 	return domain.Team{
 		ID:         team.ID.Bytes,
@@ -44,6 +57,9 @@ func (s *TeamService) GetTeam(ctx context.Context, userID uuid.UUID) (domain.Tea
 		Country:    team.Country,
 		Budget:     team.Budget,
 		TotalValue: total,
+		Players:    domainPlayers,
+		CreatedAt:  team.CreatedAt.Time,
+		UpdatedAt:  team.UpdatedAt.Time,
 	}, nil
 }
 
@@ -61,21 +77,13 @@ func (s *TeamService) UpdateTeam(ctx context.Context, userID uuid.UUID, name, co
 		}
 		return domain.Team{}, err
 	}
-	updated, err := s.store.UpdateTeam(ctx, repository.UpdateTeamParams{
+	if _, err := s.store.UpdateTeam(ctx, repository.UpdateTeamParams{
 		ID:      team.ID,
 		Name:    name,
 		Country: country,
-	})
-
-	if err != nil {
+	}); err != nil {
 		return domain.Team{}, err
 	}
 
-	return domain.Team{
-		ID:      updated.ID.Bytes,
-		UserID:  updated.UserID.Bytes,
-		Name:    updated.Name,
-		Country: updated.Country,
-		Budget:  updated.Budget,
-	}, nil
+	return s.GetTeam(ctx, userID)
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/faikbairamov/soccer-manager/internal/domain"
@@ -19,7 +20,6 @@ type TransferHandler struct {
 	svc transferService
 }
 
-// TransferListResponse is returned by GetTransfers.
 type TransferListResponse struct {
 	Data []domain.Transfer `json:"data"`
 	Meta struct {
@@ -66,11 +66,21 @@ func (h *TransferHandler) ListTransfer(c *gin.Context) {
 	playerID, _ := uuid.Parse(req.PlayerID)
 	transfer, err := h.svc.ListTransfer(c.Request.Context(), userID, playerID, req.AskingPrice)
 	if err != nil {
-		httpError(c, err, "transfer.already_listed")
+		switch {
+		case errors.Is(err, domain.ErrForbidden):
+			httpError(c, err, "player.not_owner")
+		case errors.Is(err, domain.ErrConflict):
+			httpError(c, err, "transfer.already_listed")
+		case errors.Is(err, domain.ErrNotFound):
+			httpError(c, err, "player.not_found")
+		default:
+			httpError(c, err, "server.internal_error")
+		}
 		return
 	}
 	c.JSON(http.StatusCreated, transfer)
 }
+
 // GetTransfers godoc
 // @Summary      Browse transfer market
 // @Description  Returns a paginated list of all active transfer listings.
@@ -101,6 +111,7 @@ func (h *TransferHandler) GetTransfers(c *gin.Context) {
 		"meta": gin.H{"page": q.Page, "limit": q.Limit, "total": total},
 	})
 }
+
 // DelistTransfer godoc
 // @Summary      Remove a transfer listing
 // @Description  Deletes a transfer listing. Only the owner of the listed player can delist.
@@ -122,11 +133,17 @@ func (h *TransferHandler) DelistTransfer(c *gin.Context) {
 		return
 	}
 	if err := h.svc.DelistTransfer(c.Request.Context(), userID, transferID); err != nil {
-		httpError(c, err, "transfer.not_found")
+		switch {
+		case errors.Is(err, domain.ErrForbidden):
+			httpError(c, err, "player.not_owner")
+		default:
+			httpError(c, err, "transfer.not_found")
+		}
 		return
 	}
 	c.Status(http.StatusNoContent)
 }
+
 // BuyPlayer godoc
 // @Summary      Buy a listed player
 // @Description  Purchases a player from the transfer market. Atomically credits the seller, debits the buyer, transfers the player, and removes the listing.
@@ -149,7 +166,14 @@ func (h *TransferHandler) BuyPlayer(c *gin.Context) {
 		return
 	}
 	if err := h.svc.BuyPlayer(c.Request.Context(), userID, transferID); err != nil {
-		httpError(c, err, "transfer.not_found")
+		switch {
+		case errors.Is(err, domain.ErrOwnPlayer):
+			httpError(c, err, "transfer.own_player")
+		case errors.Is(err, domain.ErrInsufficientFunds):
+			httpError(c, err, "transfer.insufficient_funds")
+		default:
+			httpError(c, err, "transfer.not_found")
+		}
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Player purchased successfully"})

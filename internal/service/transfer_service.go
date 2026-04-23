@@ -52,9 +52,15 @@ func (s *TransferService) ListTransfer(ctx context.Context, userID, playerID uui
 		return domain.Transfer{}, err
 	}
 	return domain.Transfer{
-		ID:          transfer.ID.Bytes,
-		PlayerID:    transfer.PlayerID.Bytes,
-		AskingPrice: transfer.AskingPrice,
+		ID:              transfer.ID.Bytes,
+		PlayerID:        transfer.PlayerID.Bytes,
+		AskingPrice:     transfer.AskingPrice,
+		ListedAt:        transfer.ListedAt.Time,
+		PlayerFirstName: player.FirstName,
+		PlayerLastName:  player.LastName,
+		PlayerPosition:  string(player.Position),
+		PlayerValue:     player.Value,
+		TeamName:        team.Name,
 	}, nil
 }
 func (s *TransferService) GetTransfers(ctx context.Context, page, limit int) ([]domain.Transfer, int64, error) {
@@ -76,6 +82,7 @@ func (s *TransferService) GetTransfers(ctx context.Context, page, limit int) ([]
 			ID:              r.ID.Bytes,
 			PlayerID:        r.PlayerID.Bytes,
 			AskingPrice:     r.AskingPrice,
+			ListedAt:        r.ListedAt.Time,
 			PlayerFirstName: r.FirstName,
 			PlayerLastName:  r.LastName,
 			PlayerPosition:  string(r.Position),

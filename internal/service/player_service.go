@@ -70,5 +70,7 @@ func toDomainPlayer(p repository.Player) domain.Player {
 		Position:  string(p.Position),
 		Age:       int(p.Age),
 		Value:     p.Value,
+		CreatedAt: p.CreatedAt.Time,
+		UpdatedAt: p.UpdatedAt.Time,
 	}
 }
