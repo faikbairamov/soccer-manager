@@ -34,7 +34,6 @@ type AuthResponse struct {
 	Token string `json:"token"`
 }
 
-// ErrorResponse is the shape returned for every error.
 type ErrorResponse struct {
 	Error string `json:"error"`
 }

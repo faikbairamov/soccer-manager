@@ -55,7 +55,7 @@ func TestGetTeamHandler_Success(t *testing.T) {
 
 	var body map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &body))
-	assert.Equal(t, "Test FC", body["Name"])
+	assert.Equal(t, "Test FC", body["name"])
 }
 
 func TestGetTeamHandler_NotFound(t *testing.T) {

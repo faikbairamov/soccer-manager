@@ -13,17 +13,6 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-// buyPlayerSetup sets up the three pre-transaction lookups that every BuyPlayer test needs.
-// sellerID is the team that owns the player being sold.
-func buyPlayerSetup(mq interface {
-	EXPECT() interface {
-		GetTransferByID(any, any) any
-		GetPlayerByID(any, any) any
-		GetTeamByUserID(any, any) any
-	}
-}, askingPrice int64, buyerBudget int64, sellerTeamID pgtype.UUID) {
-	// Use the mock directly in each test instead — see individual tests below.
-}
 func TestBuyPlayer_NotFound(t *testing.T) {
 	store, mq := newMockStore(t)
 	svc := NewTransferService(store)
@@ -84,6 +73,31 @@ func TestBuyPlayer_Success_AtomicBudgetUpdate(t *testing.T) {
 		return p.ID == pgID(teamUUID) && p.Budget == -askingPrice
 	})
 	assert.True(t, buyerDebited, "buyer must be debited with the asking price in the same transaction")
+}
+func TestBuyPlayer_Success_SellerCredited(t *testing.T) {
+	store, mq := newMockStore(t)
+	svc := NewTransferService(store)
+	const askingPrice = int64(2_000_000)
+	mq.EXPECT().GetTransferByID(gomock.Any(), pgID(transferUUID)).
+		Return(repository.TransferList{ID: pgID(transferUUID), PlayerID: pgID(playerUUID), AskingPrice: askingPrice}, nil)
+	mq.EXPECT().GetPlayerByID(gomock.Any(), pgID(playerUUID)).
+		Return(repository.Player{ID: pgID(playerUUID), TeamID: pgID(sellerUUID), Value: 1_000_000}, nil)
+	mq.EXPECT().GetTeamByUserID(gomock.Any(), pgID(userUUID)).
+		Return(repository.Team{ID: pgID(teamUUID), Budget: 5_000_000}, nil)
+	var sellerUpdate repository.UpdateTeamBudgetParams
+	mq.EXPECT().UpdateTeamBudget(gomock.Any(), gomock.Any()).
+		DoAndReturn(func(_ any, p repository.UpdateTeamBudgetParams) (repository.Team, error) {
+			if p.ID == pgID(sellerUUID) {
+				sellerUpdate = p
+			}
+			return repository.Team{}, nil
+		}).Times(2)
+	mq.EXPECT().TransferPlayer(gomock.Any(), gomock.Any()).Return(repository.Player{}, nil)
+	mq.EXPECT().DeleteTransfer(gomock.Any(), pgID(transferUUID)).Return(nil)
+	err := svc.BuyPlayer(t.Context(), userUUID, transferUUID)
+	require.NoError(t, err)
+	assert.Equal(t, pgID(sellerUUID), sellerUpdate.ID, "seller team must receive the budget update")
+	assert.Equal(t, askingPrice, sellerUpdate.Budget, "seller must be credited with the full asking price")
 }
 func TestBuyPlayer_Success_PlayerTransferredToBuyer(t *testing.T) {
 	store, mq := newMockStore(t)

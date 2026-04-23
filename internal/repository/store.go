@@ -21,7 +21,7 @@ func (s *Store) WithTx(ctx context.Context, fn func(q Querier) error) error {
 		return err
 	}
 
-	defer tx.Rollback(ctx)
+	defer func() { _ = tx.Rollback(ctx) }()
 	if err := fn(New(tx)); err != nil {
 		return err
 	}
