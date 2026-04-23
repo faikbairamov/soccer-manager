@@ -570,30 +570,29 @@ const docTemplate = `{
                 "country": {
                     "type": "string"
                 },
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
-                "firstName": {
+                "first_name": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
-                "lastName": {
+                "last_name": {
                     "type": "string"
                 },
                 "position": {
                     "type": "string"
                 },
-                "teamID": {
+                "team_id": {
                     "type": "string"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 },
                 "value": {
-                    "type": "integer",
-                    "format": "int64"
+                    "type": "integer"
                 }
             }
         },
@@ -601,13 +600,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "budget": {
-                    "type": "integer",
-                    "format": "int64"
+                    "type": "integer"
                 },
                 "country": {
                     "type": "string"
                 },
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
                 "id": {
@@ -616,14 +614,19 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "totalValue": {
-                    "type": "integer",
-                    "format": "int64"
+                "players": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Player"
+                    }
                 },
-                "updatedAt": {
+                "total_value": {
+                    "type": "integer"
+                },
+                "updated_at": {
                     "type": "string"
                 },
-                "userID": {
+                "user_id": {
                     "type": "string"
                 }
             }
@@ -631,33 +634,31 @@ const docTemplate = `{
         "domain.Transfer": {
             "type": "object",
             "properties": {
-                "askingPrice": {
-                    "type": "integer",
-                    "format": "int64"
+                "asking_price": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
                 },
-                "listedAt": {
+                "listed_at": {
                     "type": "string"
                 },
-                "playerFirstName": {
+                "player_first_name": {
                     "type": "string"
                 },
-                "playerID": {
+                "player_id": {
                     "type": "string"
                 },
-                "playerLastName": {
+                "player_last_name": {
                     "type": "string"
                 },
-                "playerPosition": {
+                "player_position": {
                     "type": "string"
                 },
-                "playerValue": {
-                    "type": "integer",
-                    "format": "int64"
+                "player_value": {
+                    "type": "integer"
                 },
-                "teamName": {
+                "team_name": {
                     "type": "string"
                 }
             }
