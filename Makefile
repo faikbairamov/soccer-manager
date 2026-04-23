@@ -5,7 +5,7 @@ BINARY=soccer-manager
 MAIN=./cmd/api/main.go
 MIGRATE=migrate -path ./internal/db/migrations -database "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSL_MODE)"
 
-.PHONY: run build tidy docker-up docker-down migrate-up migrate-down migrate-create migrate-reset sqlc-gen mock-gen swagger-gen lint
+.PHONY: run build tidy docker-up docker-down migrate-up migrate-down migrate-create migrate-reset sqlc-gen mock-gen swagger-gen test lint
 
 ## Run the application
 run:
@@ -56,6 +56,10 @@ mock-gen:
 ## Generate swagger docs
 swagger-gen:
 	swag init -g $(MAIN) -o ./docs
+
+## Run tests
+test:
+	go test -race ./...
 
 ## Run linter
 lint:
