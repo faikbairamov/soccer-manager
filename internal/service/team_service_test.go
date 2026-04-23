@@ -55,10 +55,12 @@ func TestUpdateTeam_Success(t *testing.T) {
 	svc := NewTeamService(store)
 
 	mq.EXPECT().GetTeamByUserID(gomock.Any(), pgID(userUUID)).
-		Return(repository.Team{ID: pgID(teamUUID)}, nil)
+		Return(repository.Team{ID: pgID(teamUUID), Name: "New Name", Country: "France", Budget: 5_000_000}, nil).Times(2)
 	mq.EXPECT().UpdateTeam(gomock.Any(), repository.UpdateTeamParams{
 		ID: pgID(teamUUID), Name: "New Name", Country: "France",
-	}).Return(repository.Team{Name: "New Name", Country: "France"}, nil)
+	}).Return(repository.Team{}, nil)
+	mq.EXPECT().GetPlayersByTeamID(gomock.Any(), pgID(teamUUID)).
+		Return([]repository.Player{{Value: 1_000_000}}, nil)
 
 	result, err := svc.UpdateTeam(t.Context(), userUUID, "New Name", "France")
 	require.NoError(t, err)
