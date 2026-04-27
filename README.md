@@ -14,7 +14,7 @@ A RESTful API for managing fantasy football teams. Users register, receive a squ
 | ---------------- | ---------------------------- |
 | Language         | Go 1.26.1                    |
 | HTTP framework   | Gin                          |
-| Database         | PostgreSQL 16 (via Docker)   |
+| Database         | PostgreSQL 18 (via Docker)   |
 | Driver / pool    | pgx/v5 + pgxpool             |
 | Query generation | sqlc                         |
 | Migrations       | golang-migrate               |
